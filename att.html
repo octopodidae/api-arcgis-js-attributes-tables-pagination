@@ -1,0 +1,779 @@
+<html lang="en">
+  
+<head>
+	<meta charset="UTF-8">
+	<title>wa</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://code.jquery.com/ui/jquery-ui-git.css">
+	<link rel="stylesheet" href="https://js.arcgis.com/4.5/esri/themes/light/main.css">
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script><!---->
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<script src="https://js.arcgis.com/4.5"></script>
+	<style>
+		html {
+		  height: 100%;
+		  background: radial-gradient(circle farthest-corner at 200px 0, #414141, #000) no-repeat center center fixed;	
+		  -webkit-background-size: cover;
+		  -moz-background-size: cover;
+		  -o-background-size: cover;
+		  background-size: cover;
+
+		}
+		body{
+		  width: 100%;
+		  background-color: transparent !important;
+		}
+		.dropholder{
+		  width: 350px;
+		  height: 60px;
+		  margin: 20px 0;
+		  padding:0 0 0 20px;
+		  border-radius:10px;
+		  font:18px arial;
+		  color: #fff;
+		  position: relative;
+		  box-sizing:border-box;
+		  border:1px solid #9b0db9;
+		  animation: move 3s ease-in-out infinite;
+		}
+		.dropholder:hover, .dropholder:hover:after{
+		  animation-play-state:paused;
+		}
+		.dropholder:after{
+		  content:"";
+		  position: absolute;
+		  width: 250px;
+		  height: 5px;
+		  background:rgba(0,0,0, 0);
+		  display: block;
+		  top:100px;
+		  left:37px;
+		  margin: auto;
+		  border-radius:50%;
+		}
+		p{
+		  float: left;
+		  line-height:60px;
+		}
+		.dropdown > p{
+		  font-size:16px;
+		}
+		.dropdown, .dropholder{
+		  background:linear-gradient(#da4df8 ,#9b0db9);
+		}
+		.dropdown{
+		  float: left;
+		  width: 287px;
+		  padding:0 0 0 40px;
+		  border-radius:0 10px 10px 0;
+		  cursor: pointer;
+		  height:58px;
+		  border-left:1px solid #da4df8;
+		  position: relative;
+		}
+		.dropdown:hover{
+		  background:linear-gradient(#da4df8 ,#b11cd0);
+		}
+
+		.menu{
+		  position: absolute;
+		  right:0;
+		  top:70px;
+		  width: 288px;
+		  cursor: pointer;
+		  opacity:0;
+		  transform-style: preserve-3d;
+		  transform:rotatey(180deg) rotateX(5deg) translatey(100px);
+		  backface-visibility: hidden;
+		  background:linear-gradient(#4dc2f8 ,#0d82b9);
+		  border:2px solid #0d82b9;
+		  border-radius:10px;
+		  transition:all 0.8s;
+		  z-index: 5;
+		  overflow:hidden;
+		}
+		.menu li{
+		  padding: 10px 10px;
+		  border-bottom:1px dotted #fff;
+		  color:#e8f8ff; 
+		  transition:all 0.3s;
+		}
+		.menu li:hover{
+		  background:#61ccfd;
+		  padding-left:20px;
+		}
+		.menu li:last-child{
+		  border:none;
+		}
+
+		.showMenu{
+		  opacity:1;
+		  transform:rotateX(0deg) translatey(0px);
+		  padding-left: 2px;
+
+		}
+		li {
+		  list-style-type: none;
+		}
+
+		li > i{
+		  float: left;
+		  padding-right: 8px;
+		}
+		p > i{
+		  position: relative;
+		  top:2px;
+		}
+		i, span {
+		  opacity: 0.7;
+		}
+
+		span {
+		  font-style: italic;
+		}
+
+		.fa-globe {
+		  font-size: 1.3em;
+		}
+		.fa-map {
+		  font-size: 1.1em;
+		}
+		.fa-globe, .fa-map{
+		  margin-right: 20px;
+		  top: 18px;
+		}
+
+		@keyframes move{
+		  0%, 100%{transform:translateY(-10px);}
+		  50%{transform:translateY(0);}
+		}
+
+		@keyframes moveShadow{
+		  0%,100%{transform:translateY(10px);opacity:0.4;}
+		  50%{transform:translateY(0);opacity:1;}
+		}
+
+		#container_map {
+		  width: 90%;
+		  height: 500px;
+		  margin-top: 10px;
+		  border-radius: 5px;
+		  position: relative;
+		  margin-left: 10%;
+		}
+
+		#agsServices {
+		  width: auto;
+		  margin: 5%;
+		}
+
+		#toc {
+		  margin: 5%;
+		}
+
+		#errorSpan {
+		  display: none;
+		  font-size: 0.7em;
+		  width: auto;
+		  text-align: center;
+		  margin: 5%;
+		}
+
+		/* checkbox style */
+		#toc label {
+		  opacity: 0.7;
+		}
+		#toc .check input {
+		  display: none;
+		}
+		#toc .check input:checked + label .box {
+		  background: rgba(0, 0, 0, 0.5);
+		  color: #da4df8;
+		}
+		#toc .check input:checked + label .box i {
+		  -webkit-transform: translate(-50%, -50%) scale(1);
+		  transform: translate(-50%, -50%) scale(1);
+		  -webkit-transition-duration: 250ms;
+		  transition-duration: 250ms;
+		  opacity: 1;
+		}
+		#toc .check label {
+		  cursor: pointer;
+		}
+		#toc .check label .box {
+		  background: rgba(0, 0, 0, 0.3);
+		  border-radius: 5px;
+		  position: relative;
+		  width: 25px;
+		  height: 25px;
+		  -webkit-transition: background 300ms ease;
+		  transition: background 300ms ease;
+		}
+		#toc .check label .box:hover {
+		  background: rgba(0, 0, 0, 0.5);
+		}
+		#toc .check label .box i {
+		  position: absolute;
+		  top: 50%;
+		  left: 50%;
+		  font-size: 20px;
+		  display: inline-block;
+		  opacity: 0;
+		  pointer-events: none;
+		  -webkit-transition: all 0.2s ease-in-out;
+		  transition: all 0.2s ease-in-out;
+		  -webkit-transition-delay: 200ms;
+		  transition-delay: 200ms;
+		  -webkit-transform: translate(-50%, -50%) scale(6);
+		  transform: translate(-50%, -50%) scale(6);/**/
+		}
+
+		.current {
+		  background-color: #da4df8 !important;
+		}
+
+		.box-table	 {
+		  display: inline-block;
+		  position: relative;
+		  bottom: -27px;
+		  left: -10px;
+		  position: relative;
+		  width: 25px;
+		  height: 25px;
+		}
+
+		.fa-table {
+		  font-size: 1.5em;
+		  color: #da4df8;
+		  cursor: pointer;
+		}
+
+		.table-active {
+		  -webkit-transform: scale(1.5);
+		  transform: scale(1.5);
+		  -webkit-transition-duration: 250ms;
+		  transition-duration: 250ms;
+
+		}
+
+		table {
+		  font-family: arial, sans-serif;
+		  font-size: 0.7em;
+		  border-collapse: collapse;
+		  width: 100%;
+		  color: rgba(0,0,0,1);
+		}
+
+		td, th {
+		  border: 1px solid #dddddd;
+		  text-align: left;
+		  padding: 8px;
+		}
+
+		th {
+		  background-color:  #da4df8;
+		  color: white;
+		}
+
+		#tabs {
+		  display: none;
+		  margin-top: 50px;
+		}
+
+		.ui-state-active{
+		  background: linear-gradient(#4dc2f8 ,#0d82b9) !important;
+		}
+
+		.pagination {
+			margin: 0;
+		}
+
+		.btn-warning {
+			margin-left: 33%;
+    		margin-top: 20px
+		}
+
+	</style>
+
+</head>
+
+<body>
+
+	<div class="container-fluid">
+		
+		<div class="row">
+
+			<div class="col col-md-3">
+
+				<div class="dropholder dropholder-basemap">
+				  <p><i class="fa fa-globe"></i></p>
+				  <div class="dropdown dropdown-basemap">
+				    <p><i class="fa fa-chevron-left"></i><span>&nbsp&nbsp&nbspChoose a Basemap&nbsp&nbsp&nbsp</span><i class="fa fa-chevron-right"></i></p>
+				  </div>
+				  <ul class="menu menu-basemap">
+				    <li><i class="fa fa-globe"></i>Satellite</li>
+				    <li><i class="fa fa-globe"></i>Hybrid</li>
+				    <li><i class="fa fa-globe"></i>Streets</li>
+				    <li><i class="fa fa-globe"></i>Topo</li>
+				    <li><i class="fa fa-globe"></i>Gray</li>
+				    <li><i class="fa fa-globe"></i>Dark-Gray</li>
+				    <li><i class="fa fa-globe"></i>OSM</li>
+				    <li><i class="fa fa-globe"></i>Dark-Gray-Vector</li>
+				    <li><i class="fa fa-globe"></i>Gray-Vector</li>
+				    <li><i class="fa fa-globe"></i>OSM</li>
+				    <li><i class="fa fa-globe"></i>Streets-Vector</li>
+				    <li><i class="fa fa-globe"></i>Topo-Vector</li>
+				    <li><i class="fa fa-globe"></i>streets-Night-Vector</li>
+				    <li><i class="fa fa-globe"></i>Streets-Relief-Vector</li>
+				    <li><i class="fa fa-globe"></i>Streets-Navigation-Vector</li>
+				  </ul>
+				</div>
+
+				<div class="dropholder dropholder-layer">
+				  <p><i class="fa fa-map"></i></p>
+				  <div class="dropdown dropdown-layer">
+				    <p><i class="fa fa-chevron-left"></i><span>&nbsp&nbsp&nbspChoose a Service&nbsp&nbsp&nbsp</span><i class="fa fa-chevron-right"></i></p>
+				  </div>
+				  <ul class="menu menu-layer">
+				    <li url="http://sampleserver6.arcgisonline.com/arcgis/rest/services/SampleWorldCities/MapServer"><i class="fa fa-map"></i>SampleWorldCities</li><!---->
+				    <li url="http://sampleserver6.arcgisonline.com/arcgis/rest/services/PoolPermits/MapServer"><i class="fa fa-map"></i>PoolPermits</li>
+				    <li url="http://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer"><i class="fa fa-map"></i>USA</li>
+				    <li url="http://sampleserver6.arcgisonline.com/arcgis/rest/services/SF311/MapServer"><i class="fa fa-map"></i>SF311</li>
+				    <li url="http://sampleserver6.arcgisonline.com/arcgis/rest/services/Hurricanes/MapServer"><i class="fa fa-map"></i>Hurricanes</li>
+				</ul>
+				</div>
+
+				<div id="toc"></div>
+
+			</div><!-- end col num 1 -->
+
+			<div class="col col-md-9">
+				<div id="container_map"></div>
+			</div><!-- end col num 2 -->
+
+		</div> <!-- end row -->
+
+		<div class="row">
+      		<div class="col col-md-12"><button id="toggleBtn" class="btn btn-warning">Show / Hide</button></div>
+      	</div>
+
+		<div class="row">
+	      	<div id="tabs" class="col col-md-12">
+				<ul id="list-tabs"></ul><!---->
+			</div>
+		</div>
+			
+	</div><!-- end container -->
+
+  </body>
+
+  <script>
+
+let toc = document.getElementById("toc");
+let view;
+let basemaps = ["streets", "satellite", "hybrid", "topo", "gray", "dark-gray", "osm", "dark-gray-vector", "gray-vector", "streets-vector", "topo-vector", "streets-night-vector", "streets-relief-vector", "streets-navigation-vector"]
+let basemap;
+//let center = [2.342147827147827, 48.85748700263572];
+let searchWidget;
+let errorSpan = document.getElementById("errorSpan");
+let tabs = $("#tabs");
+let numTab = 1;
+let layer;
+let toggleBtn = $("#toggleBtn");
+let toggleBtn2 = document.querySelector("#toggleBtn");
+toggleBtn2.style.visibility = "hidden";
+
+require( [
+  "esri/Map",
+  "esri/views/MapView",
+  "esri/widgets/Search",
+  "esri/request",
+  "esri/layers/MapImageLayer",
+  "esri/config",
+  "dojo/domReady!"
+],
+
+        function(Map, MapView, Search, esriRequest, MapLayer, esriConfig)
+        {
+
+  esriConfig.request.corsEnabledServers.push("sampleserver6.arcgisonline.com");
+
+  basemap = new Map({ basemap: basemaps[2] });
+
+  mapView = new MapView ( { map: basemap, container: "container_map", zoom: 2 } );
+
+  searchWidget = new Search({
+    view: mapView
+  });
+  // Adds the search widget below other elements in
+  // the top left corner of the view
+  mapView.ui.add(searchWidget, {
+    position: "top-right",
+    index: 2
+  });
+
+  //Populate layer subitems in the input element
+  function populateLayerRecursive(thislayer, layerlist)
+  {
+
+    let chkDiv = document.createElement("div");
+    chkDiv.className = "check";
+    let tableBox = document.createElement("div");
+    tableBox.className = "box-table";
+    let chk = document.createElement("input");
+    chk.type = "checkbox";
+    chk.value = thislayer.id;
+    chk.checked = thislayer.visible;
+    chk.id = "chk" + thislayer.id;
+    let label = document.createElement("label");
+    label.htmlFor = "chk" + thislayer.id;
+    label.textContent = thislayer.title;
+    label.style.color = "#fff";
+    label.style.marginLeft = "5px";
+    let box = document.createElement("div");
+    box.className = "box";
+    let i = document.createElement("i");
+    i.classList.add( "fa", "fa-check");
+    let tableIcon = document.createElement("i");
+    tableIcon.classList.add( "fa", "fa-table");/**/
+    tableIcon.setAttribute("layer", thislayer.title)
+    tableIcon.setAttribute("url", layer.url + "/" +  thislayer.id);
+
+    tableBox.appendChild(tableIcon);
+    box.appendChild(i);
+    label.appendChild(box);
+    chkDiv.appendChild(tableBox);
+    chkDiv.appendChild(chk);
+    chkDiv.appendChild(label);
+
+    layerlist.appendChild(chkDiv);
+
+    $(".fa-table:first").hide();
+
+    chk.addEventListener("click", function(e) {
+
+      thislayer.visible=e.target.checked;
+
+    })
+
+    tableIcon.addEventListener("click", getCount);
+
+    if (thislayer.sublayers != null && thislayer.sublayers.items.length > 0)
+    {
+      let newlist = document.createElement("ul");
+      layerlist.appendChild(newlist);
+      for (let i = 0; i < thislayer.sublayers.length; i++)
+      {
+        populateLayerRecursive(thislayer.sublayers.items[i],newlist);
+
+      }
+    }
+
+  }
+
+  function getCount() {
+
+    this.classList.add("table-active");
+
+    if (this.classList.contains("table-active")) {
+      this.setAttribute("disabled","disabled");
+      this.style.cursor = "not-allowed";
+      this.removeEventListener("click", getCount);
+    }/**/
+
+    let url =  this.getAttribute("url");
+    layer = this.getAttribute("layer");
+    let queryurl = url + "/query";
+    let queryOptions = {
+      responseType: "json",
+      query: {
+        f: "json",
+        where: "1=1",
+        returnCountOnly: false,
+        outFields: "*"
+      }
+    }
+    esriRequest(queryurl, queryOptions).then( function(response) { populateTable(response.data) });
+    
+  }	
+
+  function populateTable(data) {
+  
+   	tabs = $("#tabs");
+    let listTabs = document.getElementById("list-tabs");				
+    let li = document.createElement("li");
+    let a = document.createElement("a");
+    a.href = "#tabs-" + numTab.toString();
+    a.textContent = layer;
+    li.appendChild(a);
+       
+    let divTab = document.createElement("div");
+    divTab.id = "tabs-" + numTab.toString();
+    tabs.append(divTab);
+    numTab++;
+    listTabs.appendChild(li);
+   	   	
+    let count = data.features.length;
+    let counter = 10;
+    let k = 0;
+
+    let ulPag =  document.createElement("ul");
+    ulPag.className = "pagination";
+    let aNext = document.createElement("a");
+    let aPrev = document.createElement("a");
+    let liNext =  document.createElement("li");
+    let liPrev =  document.createElement("li");
+    liNext.classList = "page-item";
+    liPrev.classList = "page-item";
+    aPrev.textContent = "Previous";
+    aNext.textContent = "Next";
+    aNext.classList = "page-link";
+    aPrev.classList = "page-link";
+    liNext.appendChild(aNext);
+    liPrev.appendChild(aPrev);
+    ulPag.appendChild(liPrev);
+    ulPag.appendChild(liNext);
+    divTab.appendChild(ulPag);
+
+    let fields = data.fields;
+	let attributesTab = data.features;
+    let lenFields = fields.length;
+    let table = document.createElement("table");
+   	table.className = "t";
+    let trNameField = document.createElement("tr");
+    let tr = document.createElement("tr");
+
+    for (let i = 0; i < lenFields; i++) {
+      let th = document.createElement("th");
+      th.textContent = fields[i].name;
+      trNameField.appendChild(th);
+    }
+    
+    table.appendChild(trNameField);
+
+    for (k; k < counter; k++) {
+      let tr = document.createElement("tr");
+      let obj = attributesTab[k].attributes
+      
+	  for (var key in obj) {
+        let td = document.createElement("td");
+        td.textContent =obj[key];
+        tr.appendChild(td);
+      }
+      table.appendChild(tr);
+    }
+
+   	divTab.appendChild(table);
+
+   	//$_divTab = $(divTab);
+
+   	toggleBtn2.style.visibility = "visible";
+	
+	liNext.addEventListener("click", function() {
+
+		counter+=10;
+
+		if( counter <= count) {
+			
+			let idParent = this.parentElement.parentElement.id;
+		    let t = $("div#" + idParent + " > .t");
+		   
+		    if (t.length > 0) {
+		    	t.remove();
+		    }
+		    
+		   	let table = document.createElement("table");
+		   	table.className = "t";
+		    let trNameField = document.createElement("tr");
+		    let tr = document.createElement("tr");
+
+		    for (let i = 0; i < lenFields; i++) {
+		      let th = document.createElement("th");
+		      th.textContent = fields[i].name;
+		      trNameField.appendChild(th);
+		    }
+		    
+		    table.appendChild(trNameField);
+
+		    for (k; k < counter; k++) {
+		      let tr = document.createElement("tr");
+		      let obj = attributesTab[k].attributes
+		      
+			  for (var key in obj) {
+		        let td = document.createElement("td");
+		        td.textContent =obj[key];
+		        tr.appendChild(td);
+		      }
+		      table.appendChild(tr);
+		    }
+
+		   	 divTab.appendChild(table);
+	    } 
+	   else {
+	    	console.log("do nothing");
+	    	counter-=10;
+	    }
+	})
+
+	liPrev.addEventListener("click", function() {
+
+		if( counter != 10) {
+		
+			counter-=10;
+			k-=20;
+			
+		    let idParent = this.parentElement.parentElement.id;
+		    let t = $("div#" + idParent + " > .t");
+		    
+		    if (t.length > 0) {
+		    	t.remove();
+		    }
+		    
+		   	let table = document.createElement("table");
+		   	table.className = "t";
+		    let trNameField = document.createElement("tr");
+		    let tr = document.createElement("tr");
+
+		    for (let i = 0; i < lenFields; i++) {
+		      let th = document.createElement("th");
+		      th.textContent = fields[i].name;
+		      trNameField.appendChild(th);
+		    }
+		    
+		    table.appendChild(trNameField);
+
+	    	for (k; k < counter; k++) {
+			    let tr = document.createElement("tr");
+			    let obj = attributesTab[k].attributes
+			      
+				for (var key in obj) {
+			       let td = document.createElement("td");
+			       td.textContent =obj[key];
+			       tr.appendChild(td);
+			    }
+			    table.appendChild(tr);
+			}
+		    
+		    divTab.appendChild(table);
+		} 
+		else {
+	    	console.log("do nothing");
+	    }
+		
+	})
+   
+   
+    tabs.css("display", "block");
+    
+    tabs.tabs( "refresh" );
+    tabs.tabs({ active: 0 });
+
+  } 
+
+	toggleBtn.click(function() {
+		tabs.toggle( "slow" );
+	});/**/
+
+  $(document).ready(function(){
+
+    tabs.tabs();
+    tabs.find( ".ui-tabs-nav" ).sortable({
+      axis: "x",
+    });/**/
+
+    // On click Show Menu Basemap
+    $( ".dropdown-basemap" ).click(function(){
+
+      $( ".menu-basemap" ).toggleClass( "showMenu" );
+
+      if ($(".menu-basemap").hasClass("showMenu")) {
+
+        $( "#toc" ).fadeOut( "slow" );
+        $(".dropholder-layer" ).fadeOut("slow");
+
+      }
+      else {
+
+        $( "#toc" ).fadeIn( "slow" );
+        $( ".dropholder-layer" ).fadeIn( "slow" );
+        $(".menu-layer" ).removeClass("showMenu");
+
+      }
+
+    });
+
+    // Select a basemap and add it to map
+    $( ".menu-basemap > li" ).click(function(){
+
+      $( ".menu-basemap > li" ).each(function() {
+        $(this).removeClass("current");
+      })
+
+      $(this).addClass("current");
+
+      $( ".menu-basemap" ).removeClass( "showMenu" );
+      mapView.map.basemap = $(this).text().toLowerCase();
+
+      $( "#toc" ).fadeIn( "slow" );
+      $( ".dropholder-layer" ).fadeIn( "slow" );
+      $(".menu-layer" ).removeClass("showMenu");
+
+    });
+
+    // On click Show Menu Service
+    $( ".dropdown-layer" ).click(function() {
+
+      $("#toc").fadeOut( "slow" );
+      $( ".menu-layer" ).toggleClass( "showMenu" );
+
+      if (!$(".menu-layer").hasClass("showMenu")) {
+        $("#toc").fadeIn( "slow" );
+      } else {
+        $(".menu-layer").fadeIn( "slow" );
+      }
+
+    });
+
+    // Select a service and add it to map
+    $( ".menu-layer > li" ).click(function() {
+
+    $( ".menu-layer > li" ).each(function() {
+        $(this).removeClass("current");
+      })
+
+      $(this).addClass("current");
+
+      $( ".menu-layer" ).removeClass( "showMenu" );
+      toggleBtn2.style.visibility = "hidden";
+
+      urlService = $( this ).attr( "url" );
+      layer = new MapLayer();
+      layer.url = urlService;
+
+      mapView.map.removeAll();
+      mapView.map.add(layer);//
+
+      layer.then(function() {
+
+        mapView.goTo(layer.fullExtent);
+        $("#toc").empty();
+        populateLayerRecursive(layer, toc);
+        $("#toc").fadeIn( "slow" );/**/
+      })	
+
+      let tabLi = $("#list-tabs > li");
+      tabLi.remove();
+      let tabsOpened = $("#tabs > div");
+      tabsOpened.remove();
+      tabs.css("display", "none");/**/
+
+    });
+
+  });/**/
+
+}
+       )
+
+  </script>
+</html>
