@@ -1,0 +1,19 @@
+{
+  "name": "api-arcgis-js-attributes-tables-pagination",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/octopodidae/api-arcgis-js-attributes-tables-pagination.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/octopodidae/api-arcgis-js-attributes-tables-pagination/issues"
+  },
+  "homepage": "https://github.com/octopodidae/api-arcgis-js-attributes-tables-pagination#readme"
+}
